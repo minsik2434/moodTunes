@@ -2,21 +2,24 @@ package com.moodtunes.apiserver.service;
 
 import com.moodtunes.apiserver.dto.RegisterAppRequest;
 import com.moodtunes.apiserver.dto.RegisterAppResponse;
+import com.moodtunes.apiserver.entity.Application;
+import com.moodtunes.apiserver.repository.ApplicationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class ApplicationService {
 
-    public RegisterAppResponse register(RegisterAppRequest request){
-        return RegisterAppResponse
-                .builder()
-                .appId(1L)
-                .apiKey("apiKey")
-                .quotaLimit(100)
-                .issuedAt(LocalDateTime.now())
-                .build();
+    private final ApplicationRepository applicationRepository;
 
+    public RegisterAppResponse register(RegisterAppRequest request){
+        Application application = new Application(request.getAppName(), request.getOwnerEmail());
+        String apiKey = KeyGenerator.generate();
+        application.addApiKey(apiKey, request.getQuotaLimit(), true);
+        applicationRepository.save(application);
+        return new RegisterAppResponse(application.getId(), apiKey, 100, application.getCreateAt());
     }
 }
