@@ -24,4 +24,9 @@ public class Mood {
     public Mood(String moodName) {
         this.moodName = moodName;
     }
+
+    public void addMusic(Music music){
+        musicList.add(music);
+        music.setMood(this);
+    }
 }

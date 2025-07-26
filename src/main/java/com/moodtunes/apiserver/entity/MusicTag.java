@@ -19,4 +19,18 @@ public class MusicTag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
     private Tag tag;
+
+    public MusicTag(Music music, Tag tag) {
+        this.music = music;
+        this.tag = tag;
+    }
+
+    public void setMusic(Music music){
+        this.music = music;
+    }
+
+    public void setTag(Tag tag){
+        this.tag = tag;
+    }
+
 }

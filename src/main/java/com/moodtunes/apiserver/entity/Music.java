@@ -27,4 +27,20 @@ public class Music {
     List<MusicTag> musicTags = new ArrayList<>();
 
     private String url;
+
+    public Music(String title, String artist, Mood mood, String url){
+        this.title = title;
+        this.artist = artist;
+        this.mood = mood;
+        this.url = url;
+    }
+
+    public void addMusicTag(MusicTag musicTag){
+        musicTags.add(musicTag);
+        musicTag.setMusic(this);
+    }
+
+    public void setMood(Mood mood){
+        this.mood = mood;
+    }
 }
