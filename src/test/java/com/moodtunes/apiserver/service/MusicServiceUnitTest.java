@@ -7,6 +7,7 @@ import com.moodtunes.apiserver.entity.MusicTag;
 import com.moodtunes.apiserver.entity.Tag;
 import com.moodtunes.apiserver.exception.NotFoundException;
 import com.moodtunes.apiserver.repository.MoodRepository;
+import com.moodtunes.apiserver.repository.MusicRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,6 +29,8 @@ public class MusicServiceUnitTest {
 
     @Mock
     MoodRepository moodRepository;
+    @Mock
+    MusicRepository musicRepository;
 
     private static final String NO_EXIST_MOOD_NAME = "noExistMoodName";
 
@@ -87,7 +90,7 @@ public class MusicServiceUnitTest {
     @Test
     void randomMusicTest_notFoundMusic(){
 
-        when(moodRepository.findAll())
+        when(musicRepository.findAll())
                 .thenReturn(List.of());
         assertThatThrownBy(() -> musicService.randomMusic())
                 .isInstanceOf(NotFoundException.class)
