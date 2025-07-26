@@ -11,20 +11,17 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Music {
+public class Mood {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
-    private String artist;
+    private String moodName;
 
-    @ManyToOne
-    @JoinColumn(name = "mood_id")
-    private Mood mood;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "mood")
+    List<Music> musicList = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
-    List<MusicTag> musicTags = new ArrayList<>();
-
-    private String url;
+    public Mood(String moodName) {
+        this.moodName = moodName;
+    }
 }

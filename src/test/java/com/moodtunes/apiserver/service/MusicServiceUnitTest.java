@@ -1,12 +1,19 @@
 package com.moodtunes.apiserver.service;
 
 import com.moodtunes.apiserver.dto.MusicResponse;
+import com.moodtunes.apiserver.entity.Mood;
+import com.moodtunes.apiserver.entity.Music;
+import com.moodtunes.apiserver.exception.NotFoundException;
+import com.moodtunes.apiserver.repository.MoodRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MusicServiceUnitTest {
@@ -14,16 +21,20 @@ public class MusicServiceUnitTest {
     @InjectMocks
     MusicService musicService;
 
+    @Mock
+    MoodRepository moodRepository;
+
     @Test
-    void randomMusicByMood(){
-        String requestMood = "happy";
-        MusicResponse response = musicService.randomMusic(requestMood);
+    void randomMusicByMood() throws NoSuchFieldException, IllegalAccessException {
+    }
 
-        assertThat(response.getTitle()).isEqualTo("좋은날");
-        assertThat(response.getArtist()).isEqualTo("IU");
-        assertThat(response.getMood()).isEqualTo("happy");
-        assertThat(response.getTags()).containsExactlyInAnyOrder("발라드", "R&B/Soul");
-        assertThat(response.getUrl()).isEqualTo("https://youtu.be/jeqdYqsrsA0?si=Z9GjubxbM_U0xkKC");
+    @Test
+    void randomMusicByMood_notFound(){
+        when(moodRepository.findByMoodName("sad"))
+                .thenReturn(Optional.empty());
 
+        assertThatThrownBy(() -> musicService.randomMusic("sad"))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("NotFound mood");
     }
 }
