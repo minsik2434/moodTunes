@@ -24,5 +24,10 @@ public class Application {
     private String ownerEmail;
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
+
+    public Application(String name, String ownerEmail){
+        this.name = name;
+        this.ownerEmail = ownerEmail;
+    }
 }

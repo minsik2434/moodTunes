@@ -28,4 +28,11 @@ public class ApiKey {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime issuedAt;
+
+    public ApiKey(Application application, String apiKey, int quotaLimit, boolean activate){
+        this.application = application;
+        this.apiKey = apiKey;
+        this.quotaLimit = quotaLimit;
+        this.activate = activate;
+    }
 }
