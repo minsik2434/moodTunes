@@ -25,6 +25,7 @@ public class MusicServiceUnitTest {
     MoodRepository moodRepository;
 
     private static final String NO_EXIST_MOOD_NAME = "noExistMoodName";
+
     @Test
     void randomMusicByMood() {
     }
@@ -41,6 +42,12 @@ public class MusicServiceUnitTest {
 
     @Test
     void randomMusicByMood_notFoundMusic(){
-        when(moodRepository.findByMoodName("sad"));
+        Mood emptyMood = new Mood("happy");
+        when(moodRepository.findByMoodName("happy"))
+                .thenReturn(Optional.of(emptyMood));
+
+        assertThatThrownBy(() -> musicService.randomMusic("happy"))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("No Music found for mood: happy");
     }
 }
