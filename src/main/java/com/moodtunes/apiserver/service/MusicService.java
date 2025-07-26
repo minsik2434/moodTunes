@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,11 +21,21 @@ public class MusicService {
 
     @Transactional(readOnly = true)
     public MusicResponse randomMusic(String moodName){
-        Mood mood = moodRepository.findByMoodName(moodName)
-                .orElseThrow(() -> new NotFoundException("NotFound mood"));
+        Mood mood =
+                moodRepository.findByMoodName(moodName).orElseThrow(() -> new NotFoundException("NotFound mood"));
         List<Music> musicList = mood.getMusicList();
+        if(musicList.isEmpty()){
+            throw new NotFoundException("No Music found for mood: " + moodName);
+        }
 
-        return new MusicResponse("좋은날", "IU", "happy", List.of("발라드", "R&B/Soul"),
-                "https://youtu.be/jeqdYqsrsA0?si=Z9GjubxbM_U0xkKC");
+        int randomIndex = ThreadLocalRandom.current().nextInt(musicList.size());
+        Music selected = musicList.get(randomIndex);
+
+        List<String> tagList = selected.getMusicTags().stream()
+                .map(mt -> mt.getTag().getTagName())
+                .toList();
+
+        return new MusicResponse(selected.getTitle(), selected.getArtist(), mood.getMoodName(), tagList,
+                selected.getUrl());
     }
 }

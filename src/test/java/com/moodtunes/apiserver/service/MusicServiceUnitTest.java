@@ -24,17 +24,23 @@ public class MusicServiceUnitTest {
     @Mock
     MoodRepository moodRepository;
 
+    private static final String NO_EXIST_MOOD_NAME = "noExistMoodName";
     @Test
-    void randomMusicByMood() throws NoSuchFieldException, IllegalAccessException {
+    void randomMusicByMood() {
     }
 
     @Test
-    void randomMusicByMood_notFound(){
-        when(moodRepository.findByMoodName("sad"))
+    void randomMusicByMood_notFoundMood(){
+        when(moodRepository.findByMoodName(NO_EXIST_MOOD_NAME))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> musicService.randomMusic("sad"))
+        assertThatThrownBy(() -> musicService.randomMusic(NO_EXIST_MOOD_NAME))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("NotFound mood");
+    }
+
+    @Test
+    void randomMusicByMood_notFoundMusic(){
+        when(moodRepository.findByMoodName("sad"));
     }
 }
