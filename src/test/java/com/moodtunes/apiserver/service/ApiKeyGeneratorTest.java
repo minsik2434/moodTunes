@@ -18,4 +18,12 @@ public class ApiKeyGeneratorTest {
         String generate = apiKeyGenerator.generate();
         assertThat(generate).matches( "^[0-9a-fA-F]{16}$");
     }
+
+    @Test
+    void randomGenerate(){
+        String firstGenerate = apiKeyGenerator.generate();
+        String secondGenerate = apiKeyGenerator.generate();
+
+        assertThat(firstGenerate).isNotEqualTo(secondGenerate);
+    }
 }
