@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class ApiKey {
 
     @Id
@@ -22,12 +25,7 @@ public class ApiKey {
     private String apiKey;
     private int quotaLimit;
     private boolean activate;
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime issuedAt;
-
-    public ApiKey(Application application, String apiKey, int quotaLimit, boolean activate) {
-        this.application = application;
-        this.apiKey = apiKey;
-        this.quotaLimit = quotaLimit;
-        this.activate = activate;
-    }
 }

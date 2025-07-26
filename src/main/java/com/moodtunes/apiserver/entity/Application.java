@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class Application {
 
     @Id
@@ -19,18 +22,7 @@ public class Application {
     private Long id;
     private String name;
     private String ownerEmail;
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createAt;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ApiKey> apiKeys = new ArrayList<>();
-
-    public Application(String name, String ownerEmail) {
-        this.name = name;
-        this.ownerEmail = ownerEmail;
-    }
-
-    public void addApiKey(String apiKeyString, int quotaLimit, boolean activate){
-        ApiKey apiKey = new ApiKey(this, apiKeyString, quotaLimit, activate);
-        apiKeys.add(apiKey);
-    }
 }

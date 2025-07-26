@@ -2,42 +2,32 @@ package com.moodtunes.apiserver.service;
 
 import com.moodtunes.apiserver.dto.RegisterAppRequest;
 import com.moodtunes.apiserver.dto.RegisterAppResponse;
-import com.moodtunes.apiserver.entity.Application;
-import com.moodtunes.apiserver.repository.ApplicationRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.any;
-import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class ApplicationServiceUnitTest {
 
-        @InjectMocks
-        ApplicationService applicationService;
+    @InjectMocks
+    ApplicationService applicationService;
 
-        @Mock
-        ApplicationRepository applicationRepository;
+    @Test
+    void registerTest(){
+        RegisterAppRequest request =
+                new RegisterAppRequest("MyApp", "test@naver.com", 100);
 
-        @BeforeEach
-        void setUp(){
-            MockitoAnnotations.openMocks(this);
-        }
+        RegisterAppResponse response = applicationService.register(request);
 
-        @Test
-        void applicationRegisterTest(){
-            RegisterAppRequest requestDto = new RegisterAppRequest("appName", "test@naver.com", 100);
-
-            RegisterAppResponse response = applicationService.register(requestDto);
-
-            assertThat(response.getAppId()).isEqualTo(1L);
-            assertThat(response.getQuotaLimit()).isEqualTo(100);
-        }
+        assertThat(response.getAppId()).isEqualTo(1L);
+        assertThat(response.getApiKey()).isEqualTo("apiKey");
+        assertThat(response.getQuotaLimit()).isEqualTo(100);
+    }
 
 }
