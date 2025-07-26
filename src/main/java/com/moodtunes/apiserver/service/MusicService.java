@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +19,7 @@ public class MusicService {
     private final MoodRepository moodRepository;
 
     @Transactional(readOnly = true)
-    public MusicResponse randomMusic(String moodName){
+    public MusicResponse randomMusicByMood(String moodName){
         Mood mood =
                 moodRepository.findByMoodName(moodName).orElseThrow(() -> new NotFoundException("NotFound mood"));
         List<Music> musicList = mood.getMusicList();
@@ -37,5 +36,10 @@ public class MusicService {
 
         return new MusicResponse(selected.getTitle(), selected.getArtist(), mood.getMoodName(), tagList,
                 selected.getUrl());
+    }
+
+    @Transactional
+    public MusicResponse randomMusic(){
+        return null;
     }
 }

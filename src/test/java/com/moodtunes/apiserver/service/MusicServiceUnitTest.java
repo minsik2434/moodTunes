@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +50,7 @@ public class MusicServiceUnitTest {
         when(moodRepository.findByMoodName("happy"))
                 .thenReturn(Optional.of(mood));
 
-        MusicResponse response = musicService.randomMusic("happy");
+        MusicResponse response = musicService.randomMusicByMood("happy");
         assertThat(response.getTitle()).isEqualTo("좋은날");
         assertThat(response.getArtist()).isEqualTo("IU");
         assertThat(response.getMood()).isEqualTo("happy");
@@ -61,7 +63,7 @@ public class MusicServiceUnitTest {
         when(moodRepository.findByMoodName(NO_EXIST_MOOD_NAME))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> musicService.randomMusic(NO_EXIST_MOOD_NAME))
+        assertThatThrownBy(() -> musicService.randomMusicByMood(NO_EXIST_MOOD_NAME))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("NotFound mood");
     }
@@ -72,8 +74,23 @@ public class MusicServiceUnitTest {
         when(moodRepository.findByMoodName("happy"))
                 .thenReturn(Optional.of(emptyMood));
 
-        assertThatThrownBy(() -> musicService.randomMusic("happy"))
+        assertThatThrownBy(() -> musicService.randomMusicByMood("happy"))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("No Music found for mood: happy");
+    }
+
+    @Test
+    void randomMusicTest(){
+
+    }
+
+    @Test
+    void randomMusicTest_notFoundMusic(){
+
+        when(moodRepository.findAll())
+                .thenReturn(List.of());
+        assertThatThrownBy(() -> musicService.randomMusic())
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("No Music");
     }
 }
