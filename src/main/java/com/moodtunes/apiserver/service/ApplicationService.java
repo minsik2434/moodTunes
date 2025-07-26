@@ -18,11 +18,13 @@ public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final ApiKeyRepository apiKeyRepository;
+    private final ApiKeyGenerator apiKeyGenerator;
 
     @Transactional
     public RegisterAppResponse register(RegisterAppRequest request){
         Application application = applicationRepository.save(new Application(request.getAppName(), request.getOwnerEmail()));
-        ApiKey apiKey = apiKeyRepository.save(new ApiKey(application, "apiKey", request.getQuotaLimit(), true));
+        String generatedApiKey = apiKeyGenerator.generate();
+        ApiKey apiKey = apiKeyRepository.save(new ApiKey(application, generatedApiKey, request.getQuotaLimit(), true));
         return new RegisterAppResponse(application.getId(), apiKey.getApiKey(), apiKey.getQuotaLimit(), apiKey.getIssuedAt());
     }
 }

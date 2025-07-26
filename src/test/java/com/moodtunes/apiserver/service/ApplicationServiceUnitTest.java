@@ -29,6 +29,8 @@ class ApplicationServiceUnitTest {
     ApplicationRepository applicationRepository;
     @Mock
     ApiKeyRepository apiKeyRepository;
+    @Mock
+    ApiKeyGenerator apiKeyGenerator;
 
     @Test
     void registerTest() throws NoSuchFieldException, IllegalAccessException {
@@ -46,8 +48,10 @@ class ApplicationServiceUnitTest {
 
         when(applicationRepository.save(any(Application.class)))
                 .thenReturn(mockApplication);
+        when(apiKeyGenerator.generate()).thenReturn("generatedKey");
         when(apiKeyRepository.save(any(ApiKey.class)))
                 .thenReturn(mockApiKey);
+
 
         RegisterAppResponse response = applicationService.register(request);
 
