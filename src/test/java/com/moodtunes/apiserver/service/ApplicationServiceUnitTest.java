@@ -41,10 +41,13 @@ class ApplicationServiceUnitTest {
         ApiKey mockApiKey = new ApiKey(mockApplication, "generatedKey", request.getQuotaLimit(), true);
         Field id = mockApplication.getClass().getDeclaredField("id");
         Field createdAt = mockApplication.getClass().getDeclaredField("createdAt");
+        Field issuedAt = mockApiKey.getClass().getDeclaredField("issuedAt");
         id.setAccessible(true);
         id.set(mockApplication, 1L);
         createdAt.setAccessible(true);
         createdAt.set(mockApplication, LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
+        issuedAt.setAccessible(true);
+        issuedAt.set(mockApiKey, LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
 
         when(applicationRepository.save(any(Application.class)))
                 .thenReturn(mockApplication);
@@ -57,6 +60,7 @@ class ApplicationServiceUnitTest {
 
         assertThat(response.getAppId()).isEqualTo(1L);
         assertThat(response.getApiKey()).isEqualTo("generatedKey");
+        assertThat(response.getIssuedAt()).isEqualTo(LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
         assertThat(response.getQuotaLimit()).isEqualTo(100);
     }
 }
