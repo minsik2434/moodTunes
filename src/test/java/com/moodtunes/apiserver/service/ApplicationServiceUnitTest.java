@@ -1,5 +1,6 @@
 package com.moodtunes.apiserver.service;
 
+import com.moodtunes.apiserver.dto.ApplicationInfoResponse;
 import com.moodtunes.apiserver.dto.RegisterAppRequest;
 import com.moodtunes.apiserver.dto.RegisterAppResponse;
 import com.moodtunes.apiserver.entity.ApiKey;
@@ -61,5 +62,19 @@ class ApplicationServiceUnitTest {
         assertThat(response.getApiKey()).isEqualTo("generatedKey");
         assertThat(response.getIssuedAt()).isEqualTo(LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
         assertThat(response.getQuotaLimit()).isEqualTo(100);
+    }
+
+    @Test
+    void getInfoTest(){
+
+        ApplicationInfoResponse response = applicationService.getInfo(1L);
+
+        assertThat(response.getAppId()).isEqualTo(1L);
+        assertThat(response.getName()).isEqualTo("MyApp");
+        assertThat(response.getOwnerEmail()).isEqualTo("test@naver.com");
+        assertThat(response.getQuotaLimit()).isEqualTo(100);
+        assertThat(response.getRemainingQuota()).isEqualTo(55);
+        assertThat(response.isActive()).isTrue();
+        assertThat(response.getIssuedAt()).isEqualTo(LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
     }
 }

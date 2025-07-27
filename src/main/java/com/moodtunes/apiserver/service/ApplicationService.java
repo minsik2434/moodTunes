@@ -1,5 +1,6 @@
 package com.moodtunes.apiserver.service;
 
+import com.moodtunes.apiserver.dto.ApplicationInfoResponse;
 import com.moodtunes.apiserver.dto.RegisterAppRequest;
 import com.moodtunes.apiserver.dto.RegisterAppResponse;
 import com.moodtunes.apiserver.entity.ApiKey;
@@ -24,5 +25,10 @@ public class ApplicationService {
         String generatedApiKey = apiKeyGenerator.generate();
         ApiKey apiKey = apiKeyRepository.save(new ApiKey(application, generatedApiKey, request.getQuotaLimit(), true));
         return new RegisterAppResponse(application.getId(), apiKey.getApiKey(), apiKey.getQuotaLimit(), apiKey.getIssuedAt());
+    }
+
+    @Transactional(readOnly = true)
+    public ApplicationInfoResponse getInfo(Long appId){
+        return null;
     }
 }
