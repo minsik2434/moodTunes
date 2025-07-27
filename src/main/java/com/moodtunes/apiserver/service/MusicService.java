@@ -7,7 +7,6 @@ import com.moodtunes.apiserver.exception.NotFoundException;
 import com.moodtunes.apiserver.repository.MoodRepository;
 import com.moodtunes.apiserver.repository.MusicRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.mapping.Selectable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,26 +19,28 @@ public class MusicService {
 
     private final MoodRepository moodRepository;
     private final MusicRepository musicRepository;
+    private static final String NOT_FOUND_MOOD_MESSAGE = "NotFound mood";
+    private static final String NO_MUSIC_FOR_MOOD_MESSAGE_PREFIX = "No Music found for mood: ";
+    private static final String NO_MUSIC_MESSAGE = "No Music";
 
     @Transactional(readOnly = true)
     public MusicResponse randomMusicByMood(String moodName){
         Mood mood =
-                moodRepository.findByMoodName(moodName).orElseThrow(() -> new NotFoundException("NotFound mood"));
+                moodRepository.findByMoodName(moodName).orElseThrow(() -> new NotFoundException(NOT_FOUND_MOOD_MESSAGE));
 
         List<Music> musicList = mood.getMusicList();
-        if(musicList.isEmpty()){
-            throw new NotFoundException("No Music found for mood: " + moodName);
-        }
-
-        Music selected = findRandomMusic(musicList);
-        return createMusicResponse(selected);
+        return getRandomMusicResponse(musicList, NO_MUSIC_FOR_MOOD_MESSAGE_PREFIX + moodName);
     }
 
     @Transactional(readOnly = true)
     public MusicResponse randomMusic(){
         List<Music> musicList = musicRepository.findAll();
-        if (musicList.isEmpty()){
-            throw new NotFoundException("No Music");
+        return getRandomMusicResponse(musicList, NO_MUSIC_MESSAGE);
+    }
+
+    private MusicResponse getRandomMusicResponse(List<Music> musicList, String errorMessage){
+        if(musicList.isEmpty()){
+            throw new NotFoundException(errorMessage);
         }
 
         Music selected = findRandomMusic(musicList);
@@ -58,8 +59,11 @@ public class MusicService {
     }
 
     private MusicResponse createMusicResponse(Music selected){
-        List<String> tagList = getMusicTagList(selected);
-        return new MusicResponse(selected.getTitle(), selected.getArtist(), selected.getMood().getMoodName(), tagList,
+        return new MusicResponse(
+                selected.getTitle(),
+                selected.getArtist(),
+                selected.getMood().getMoodName(),
+                getMusicTagList(selected),
                 selected.getUrl());
     }
 }
