@@ -91,7 +91,7 @@ class ApplicationServiceUnitTest {
                         tuple(1L, "abc1", 100, 55, true,
                                 LocalDateTime.of(2025,12,25, 0,0,0)),
                         tuple(2L, "def2", 100, 55, false,
-                                LocalDateTime.of(2025, 11, 24, 0,0,0));
+                                LocalDateTime.of(2025, 11, 24, 0,0,0))
                 );
     }
 }
