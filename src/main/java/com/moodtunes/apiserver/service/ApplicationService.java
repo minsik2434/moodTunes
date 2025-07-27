@@ -6,6 +6,7 @@ import com.moodtunes.apiserver.dto.RegisterAppRequest;
 import com.moodtunes.apiserver.dto.RegisterAppResponse;
 import com.moodtunes.apiserver.entity.ApiKey;
 import com.moodtunes.apiserver.entity.Application;
+import com.moodtunes.apiserver.exception.NotFoundException;
 import com.moodtunes.apiserver.repository.ApiKeyRepository;
 import com.moodtunes.apiserver.repository.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,15 +34,21 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public ApplicationInfoResponse getInfo(Long appId){
+        Application application = applicationRepository.findById(appId)
+                .orElseThrow(() -> new NotFoundException("NotFound"));
+        List<ApiKey> apiKeys = application.getApiKeys();
+        List<ApiKeyDto> list = apiKeys.stream().map(apiKey -> new ApiKeyDto(apiKey.getId(), getKeyPrefix(apiKey.getApiKey()),
+                        apiKey.getQuotaLimit(), apiKey.getQuotaLimit(), apiKey.isActivate(), apiKey.getIssuedAt()))
+                .toList();
         return new ApplicationInfoResponse(
-                1L,
-                "MyApp",
-                "test@naver.com",
-                List.of(new ApiKeyDto(1L, "abc1", 100, 55, true,
-                        LocalDateTime.of(2025,12,25, 0,0,0)),
-                        new ApiKeyDto(2L, "def2", 100, 55, false,
-                                LocalDateTime.of(2025, 11, 24, 0,0,0))
-                )
+                application.getId(),
+                application.getName(),
+                application.getOwnerEmail(),
+                list
         );
+    }
+
+    private String getKeyPrefix(String apiKey){
+        return apiKey.substring(0, 4);
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,6 +25,9 @@ public class Application {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "application", fetch = FetchType.LAZY)
+    private List<ApiKey> apiKeys = new ArrayList<>();
 
     public Application(String name, String ownerEmail){
         this.name = name;

@@ -6,6 +6,7 @@ import com.moodtunes.apiserver.dto.RegisterAppRequest;
 import com.moodtunes.apiserver.dto.RegisterAppResponse;
 import com.moodtunes.apiserver.entity.ApiKey;
 import com.moodtunes.apiserver.entity.Application;
+import com.moodtunes.apiserver.exception.NotFoundException;
 import com.moodtunes.apiserver.repository.ApiKeyRepository;
 import com.moodtunes.apiserver.repository.ApplicationRepository;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -93,5 +94,15 @@ class ApplicationServiceUnitTest {
                         tuple(2L, "def2", 100, 55, false,
                                 LocalDateTime.of(2025, 11, 24, 0,0,0))
                 );
+    }
+
+    @Test
+    void getInfoTest_notFound(){
+        when(applicationRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> applicationService.getInfo(1L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("NotFound");
     }
 }
