@@ -1,5 +1,6 @@
 package com.moodtunes.apiserver.service;
 
+import com.moodtunes.apiserver.dto.ApiKeyDto;
 import com.moodtunes.apiserver.dto.ApplicationInfoResponse;
 import com.moodtunes.apiserver.dto.RegisterAppRequest;
 import com.moodtunes.apiserver.dto.RegisterAppResponse;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,15 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public ApplicationInfoResponse getInfo(Long appId){
-        return null;
+        return new ApplicationInfoResponse(
+                1L,
+                "MyApp",
+                "test@naver.com",
+                List.of(new ApiKeyDto(1L, "abc1", 100, 55, true,
+                        LocalDateTime.of(2025,12,25, 0,0,0)),
+                        new ApiKeyDto(2L, "def2", 100, 55, false,
+                                LocalDateTime.of(2025, 11, 24, 0,0,0))
+                )
+        );
     }
 }

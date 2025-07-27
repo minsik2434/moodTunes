@@ -14,4 +14,13 @@ public class ApiKeyDto {
     private int remainingQuota;
     private boolean activate;
     private LocalDateTime issuedAt;
+
+    public ApiKeyDto(Long id, String keyPrefix, int quotaLimit, int remainingQuota, boolean activate, LocalDateTime issuedAt) {
+        this.id = id;
+        this.keyPrefix = keyPrefix;
+        this.quotaLimit = quotaLimit;
+        this.remainingQuota = remainingQuota;
+        this.activate = activate;
+        this.issuedAt = issuedAt;
+    }
 }
