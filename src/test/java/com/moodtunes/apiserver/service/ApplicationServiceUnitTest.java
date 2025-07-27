@@ -1,5 +1,6 @@
 package com.moodtunes.apiserver.service;
 
+import com.moodtunes.apiserver.dto.ApiKeyDto;
 import com.moodtunes.apiserver.dto.ApplicationInfoResponse;
 import com.moodtunes.apiserver.dto.RegisterAppRequest;
 import com.moodtunes.apiserver.dto.RegisterAppResponse;
@@ -17,6 +18,7 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -66,15 +68,30 @@ class ApplicationServiceUnitTest {
 
     @Test
     void getInfoTest(){
-
         ApplicationInfoResponse response = applicationService.getInfo(1L);
 
-        assertThat(response.getAppId()).isEqualTo(1L);
-        assertThat(response.getName()).isEqualTo("MyApp");
-        assertThat(response.getOwnerEmail()).isEqualTo("test@naver.com");
-        assertThat(response.getQuotaLimit()).isEqualTo(100);
-        assertThat(response.getRemainingQuota()).isEqualTo(55);
-        assertThat(response.isActive()).isTrue();
-        assertThat(response.getIssuedAt()).isEqualTo(LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
+        assertThat(response.getAppId())
+                .isEqualTo(1L);
+        assertThat(response.getName())
+                .isEqualTo("MyApp");
+        assertThat(response.getOwnerEmail())
+                .isEqualTo("test@naver.com");
+
+        assertThat(response.getApiKeys())
+                .hasSize(2)
+                .extracting(
+                        ApiKeyDto::getId,
+                        ApiKeyDto::getKeyPrefix,
+                        ApiKeyDto::getQuotaLimit,
+                        ApiKeyDto::getRemainingQuota,
+                        ApiKeyDto::isActivate,
+                        ApiKeyDto::getIssuedAt
+                )
+                .containsExactlyInAnyOrder(
+                        tuple(1L, "abc1", 100, 55, true,
+                                LocalDateTime.of(2025,12,25, 0,0,0)),
+                        tuple(2L, "def2", 100, 55, false,
+                                LocalDateTime.of(2025, 11, 24, 0,0,0));
+                );
     }
 }

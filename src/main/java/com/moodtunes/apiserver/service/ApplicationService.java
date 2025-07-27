@@ -31,7 +31,6 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public ApplicationInfoResponse getInfo(Long appId){
-        return new ApplicationInfoResponse(1L, "MyApp", "test@naver.com",
-                100, 55, true, LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
+        return null;
     }
 }
