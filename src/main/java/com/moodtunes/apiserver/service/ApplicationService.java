@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -21,17 +20,24 @@ import java.util.List;
 public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
-    private final ApiKeyRepository apiKeyRepository;
     private final ApiKeyGenerator apiKeyGenerator;
 
     @Transactional
     public RegisterAppResponse register(RegisterAppRequest request){
-        Application application = applicationRepository.save(new Application(request.getAppName(), request.getOwnerEmail()));
-        String generatedApiKey = apiKeyGenerator.generate();
-        ApiKey apiKey = apiKeyRepository.save(new ApiKey(application, generatedApiKey, request.getQuotaLimit(), true));
-        return new RegisterAppResponse(application.getId(), apiKey.getApiKey(), apiKey.getQuotaLimit(), apiKey.getIssuedAt());
+        Application application = new Application(request.getAppName(), request.getOwnerEmail());
+        String keyString = apiKeyGenerator.generate();
+        ApiKey apiKey = application.addApiKey(keyString, request.getQuotaLimit(), true);
+        Application savedApplication = applicationRepository.save(application);
+
+        return new RegisterAppResponse(
+                savedApplication.getId(),
+                apiKey.getApiKey(),
+                apiKey.getQuotaLimit(),
+                apiKey.getIssuedAt()
+        );
     }
 
+    //TODO 수정 필요
     @Transactional(readOnly = true)
     public ApplicationInfoResponse getInfo(Long appId){
         Application application = applicationRepository.findById(appId)

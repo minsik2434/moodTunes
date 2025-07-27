@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -37,34 +38,28 @@ class ApplicationServiceUnitTest {
 
     @Test
     void registerTest() throws NoSuchFieldException, IllegalAccessException {
-        RegisterAppRequest request =
-                new RegisterAppRequest("MyApp", "test@naver.com", 100);
 
-        Application mockApplication = new Application(request.getAppName(), request.getOwnerEmail());
-        ApiKey mockApiKey = new ApiKey(mockApplication, "generatedKey", request.getQuotaLimit(), true);
-        Field id = mockApplication.getClass().getDeclaredField("id");
-        Field createdAt = mockApplication.getClass().getDeclaredField("createdAt");
-        Field issuedAt = mockApiKey.getClass().getDeclaredField("issuedAt");
-        id.setAccessible(true);
-        id.set(mockApplication, 1L);
-        createdAt.setAccessible(true);
-        createdAt.set(mockApplication, LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
-        issuedAt.setAccessible(true);
-        issuedAt.set(mockApiKey, LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
-
-        when(applicationRepository.save(any(Application.class)))
-                .thenReturn(mockApplication);
         when(apiKeyGenerator.generate()).thenReturn("generatedKey");
-        when(apiKeyRepository.save(any(ApiKey.class)))
-                .thenReturn(mockApiKey);
+        when(applicationRepository.save(any(Application.class)))
+                .thenAnswer(invocation -> {
+                    Application app = invocation.getArgument(0);
+                    ReflectionTestUtils.setField(app, "id", 1L);
+                    ApiKey apiKey = app.getApiKeys().get(0);
+                    ReflectionTestUtils.setField(apiKey, "issuedAt",
+                            LocalDateTime.of(2025, 7, 27, 12, 0, 0));
 
+                    return app;
+                });
 
+        RegisterAppRequest request = new RegisterAppRequest("MyApp", "test@naver.com", 100);
         RegisterAppResponse response = applicationService.register(request);
 
         assertThat(response.getAppId()).isEqualTo(1L);
         assertThat(response.getApiKey()).isEqualTo("generatedKey");
-        assertThat(response.getIssuedAt()).isEqualTo(LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
         assertThat(response.getQuotaLimit()).isEqualTo(100);
+        assertThat(response.getIssuedAt()).isEqualTo(LocalDateTime.of(
+                2025, 7, 27, 12, 0, 0
+        ));
     }
 
     @Test

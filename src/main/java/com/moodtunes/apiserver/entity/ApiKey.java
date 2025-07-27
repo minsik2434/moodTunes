@@ -29,10 +29,13 @@ public class ApiKey {
     @Column(updatable = false)
     private LocalDateTime issuedAt;
 
-    public ApiKey(Application application, String apiKey, int quotaLimit, boolean activate){
-        this.application = application;
+    public ApiKey(String apiKey, int quotaLimit, boolean activate){
         this.apiKey = apiKey;
         this.quotaLimit = quotaLimit;
         this.activate = activate;
+    }
+
+    public void setApplication(Application application){
+        this.application = application;
     }
 }

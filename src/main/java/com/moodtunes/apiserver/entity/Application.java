@@ -33,4 +33,11 @@ public class Application {
         this.name = name;
         this.ownerEmail = ownerEmail;
     }
+
+    public ApiKey addApiKey(String keyString, int quotaLimit, boolean activate){
+        ApiKey apiKey = new ApiKey(keyString, quotaLimit, activate);
+        apiKeys.add(apiKey);
+        apiKey.setApplication(this);
+        return apiKey;
+    }
 }
