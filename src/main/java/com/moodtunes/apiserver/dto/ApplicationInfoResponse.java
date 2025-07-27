@@ -1,6 +1,7 @@
 package com.moodtunes.apiserver.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -15,4 +16,15 @@ public class ApplicationInfoResponse {
     private int remainingQuota;
     private boolean active;
     private LocalDateTime issuedAt;
+
+    public ApplicationInfoResponse(Long appId, String name, String ownerEmail, int quotaLimit, int remainingQuota,
+                                   boolean active, LocalDateTime issuedAt) {
+        this.appId = appId;
+        this.name = name;
+        this.ownerEmail = ownerEmail;
+        this.quotaLimit = quotaLimit;
+        this.remainingQuota = remainingQuota;
+        this.active = active;
+        this.issuedAt = issuedAt;
+    }
 }

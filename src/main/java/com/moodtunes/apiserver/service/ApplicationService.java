@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
@@ -29,6 +31,7 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public ApplicationInfoResponse getInfo(Long appId){
-        return null;
+        return new ApplicationInfoResponse(1L, "MyApp", "test@naver.com",
+                100, 55, true, LocalDateTime.of(2025, 7, 25, 0, 0 ,0));
     }
 }
