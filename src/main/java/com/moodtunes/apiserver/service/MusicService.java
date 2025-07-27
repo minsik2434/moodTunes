@@ -7,6 +7,7 @@ import com.moodtunes.apiserver.exception.NotFoundException;
 import com.moodtunes.apiserver.repository.MoodRepository;
 import com.moodtunes.apiserver.repository.MusicRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.mapping.Selectable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,14 +32,10 @@ public class MusicService {
         }
 
         Music selected = findRandomMusic(musicList);
-
-        List<String> tagList = getMusicTagList(selected);
-
-        return new MusicResponse(selected.getTitle(), selected.getArtist(), mood.getMoodName(), tagList,
-                selected.getUrl());
+        return createMusicResponse(selected);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public MusicResponse randomMusic(){
         List<Music> musicList = musicRepository.findAll();
         if (musicList.isEmpty()){
@@ -46,10 +43,7 @@ public class MusicService {
         }
 
         Music selected = findRandomMusic(musicList);
-        List<String> tagList = getMusicTagList(selected);
-
-        return new MusicResponse(selected.getTitle(), selected.getArtist(), selected.getMood().getMoodName(), tagList,
-                selected.getUrl());
+        return createMusicResponse(selected);
     }
 
     private Music findRandomMusic(List<Music> musicList){
@@ -57,9 +51,15 @@ public class MusicService {
         return musicList.get(randomIndex);
     }
 
-    private static List<String> getMusicTagList(Music selected) {
+    private List<String> getMusicTagList(Music selected) {
         return selected.getMusicTags().stream()
                 .map(mt -> mt.getTag().getTagName())
                 .toList();
+    }
+
+    private MusicResponse createMusicResponse(Music selected){
+        List<String> tagList = getMusicTagList(selected);
+        return new MusicResponse(selected.getTitle(), selected.getArtist(), selected.getMood().getMoodName(), tagList,
+                selected.getUrl());
     }
 }
