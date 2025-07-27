@@ -37,15 +37,16 @@ public class ApplicationService {
         );
     }
 
-    //TODO 수정 필요
     @Transactional(readOnly = true)
     public ApplicationInfoResponse getInfo(Long appId){
         Application application = applicationRepository.findById(appId)
                 .orElseThrow(() -> new NotFoundException("NotFound"));
         List<ApiKey> apiKeys = application.getApiKeys();
+        //TODO Redis 에서 일일 호출가능 정보 조회 후 remaining에 설정해 반환해야함
         List<ApiKeyDto> list = apiKeys.stream().map(apiKey -> new ApiKeyDto(apiKey.getId(), getKeyPrefix(apiKey.getApiKey()),
-                        apiKey.getQuotaLimit(), apiKey.getQuotaLimit(), apiKey.isActivate(), apiKey.getIssuedAt()))
+                        apiKey.getQuotaLimit(), 55, apiKey.isActivate(), apiKey.getIssuedAt()))
                 .toList();
+
         return new ApplicationInfoResponse(
                 application.getId(),
                 application.getName(),
