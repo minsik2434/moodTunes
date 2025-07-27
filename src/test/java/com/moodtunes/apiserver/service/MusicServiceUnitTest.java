@@ -84,6 +84,24 @@ public class MusicServiceUnitTest {
 
     @Test
     void randomMusicTest(){
+        Mood happy = new Mood("happy");
+        Music music = new Music("좋은날", "IU", happy, "http://example.com");
+        Tag ballad = new Tag("발라드");
+        Tag rnb = new Tag("R&B/Soul");
+
+        MusicTag musicTag1 = new MusicTag(music, ballad);
+        MusicTag musicTag2 = new MusicTag(music, rnb);
+
+        music.addMusicTag(musicTag1);
+        music.addMusicTag(musicTag2);
+
+        when(musicRepository.findAll()).thenReturn(List.of(music));
+        MusicResponse response = musicService.randomMusic();
+        assertThat(response.getTitle()).isEqualTo("좋은날");
+        assertThat(response.getArtist()).isEqualTo("IU");
+        assertThat(response.getMood()).isEqualTo("happy");
+        assertThat(response.getTags()).containsExactly("발라드", "R&B/Soul");
+        assertThat(response.getUrl()).isEqualTo("http://example.com");
 
     }
 

@@ -24,17 +24,15 @@ public class MusicService {
     public MusicResponse randomMusicByMood(String moodName){
         Mood mood =
                 moodRepository.findByMoodName(moodName).orElseThrow(() -> new NotFoundException("NotFound mood"));
+
         List<Music> musicList = mood.getMusicList();
         if(musicList.isEmpty()){
             throw new NotFoundException("No Music found for mood: " + moodName);
         }
 
-        int randomIndex = ThreadLocalRandom.current().nextInt(musicList.size());
-        Music selected = musicList.get(randomIndex);
+        Music selected = findRandomMusic(musicList);
 
-        List<String> tagList = selected.getMusicTags().stream()
-                .map(mt -> mt.getTag().getTagName())
-                .toList();
+        List<String> tagList = getMusicTagList(selected);
 
         return new MusicResponse(selected.getTitle(), selected.getArtist(), mood.getMoodName(), tagList,
                 selected.getUrl());
@@ -47,14 +45,21 @@ public class MusicService {
             throw new NotFoundException("No Music");
         }
 
-        int randomIndex = ThreadLocalRandom.current().nextInt(musicList.size());
-        Music selected = musicList.get(randomIndex);
-
-        List<String> tagList = selected.getMusicTags().stream()
-                .map(mt -> mt.getTag().getTagName())
-                .toList();
+        Music selected = findRandomMusic(musicList);
+        List<String> tagList = getMusicTagList(selected);
 
         return new MusicResponse(selected.getTitle(), selected.getArtist(), selected.getMood().getMoodName(), tagList,
                 selected.getUrl());
+    }
+
+    private Music findRandomMusic(List<Music> musicList){
+        int randomIndex = ThreadLocalRandom.current().nextInt(musicList.size());
+        return musicList.get(randomIndex);
+    }
+
+    private static List<String> getMusicTagList(Music selected) {
+        return selected.getMusicTags().stream()
+                .map(mt -> mt.getTag().getTagName())
+                .toList();
     }
 }
