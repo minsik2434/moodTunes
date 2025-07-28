@@ -6,8 +6,12 @@ import com.moodtunes.apiserver.dto.RegisterAppRequest;
 import com.moodtunes.apiserver.dto.RegisterAppResponse;
 import com.moodtunes.apiserver.service.ApplicationService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,6 +19,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,5 +57,30 @@ class ApplicationControllerTest {
                 .andExpect(jsonPath("$.apiKey").value(response.getApiKey()))
                 .andExpect(jsonPath("$.quotaLimit").value(response.getQuotaLimit()))
                 .andExpect(jsonPath("$.issuedAt").value(response.getIssuedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
+    }
+
+    @ParameterizedTest
+    @MethodSource("providedInvalidRegisterRequest")
+    void registerApplication_badRequest(RegisterAppRequest request, String error, String message) throws Exception {
+        String requestBody = mapper.writeValueAsString(request);
+
+        ResultActions perform = mockMvc.perform(post("/apps")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody));
+
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(error))
+                .andExpect(jsonPath("$.message").value(message));
+    }
+
+    private static Stream<Arguments> providedInvalidRegisterRequest(){
+        return Stream.of(
+                Arguments.of(
+                        new RegisterAppRequest("", "test@naver.com", 100),
+                        "Bad Request",
+                        "appName: appName is required"
+                )
+        );
     }
 }
