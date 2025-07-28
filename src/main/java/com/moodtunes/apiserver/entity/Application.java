@@ -26,7 +26,7 @@ public class Application {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "application", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "application", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ApiKey> apiKeys = new ArrayList<>();
 
     public Application(String name, String ownerEmail){

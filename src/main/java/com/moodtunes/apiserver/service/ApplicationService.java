@@ -12,9 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +49,19 @@ public class ApplicationService {
                 application.getOwnerEmail(),
                 apiKeyDtoList
         );
+    }
+
+    @Transactional
+    public void delete(Long appId){
+        Application application = applicationRepository.findById(appId)
+                .orElseThrow(() -> new NotFoundException("NotFound Application"));
+
+        List<ApiKey> apiKeys = application.getApiKeys();
+        for (ApiKey apiKey : apiKeys) {
+            redisService.deleteValue(apiKey.getApiKey());
+        }
+
+        applicationRepository.delete(application);
     }
 
     private String getKeyPrefix(String apiKey){

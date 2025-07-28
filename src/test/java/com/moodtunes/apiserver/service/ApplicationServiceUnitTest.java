@@ -20,7 +20,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationServiceUnitTest {
@@ -118,6 +119,37 @@ class ApplicationServiceUnitTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> applicationService.getInfo(1L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("NotFound Application");
+    }
+
+    @Test
+    void deleteTest(){
+        Application application = new Application("MyApp", "test@naver.com");
+        ReflectionTestUtils.setField(application, "id", 1L);
+        ApiKey key1 = application.addApiKey("abc1fasdfv", 100, true);
+        ReflectionTestUtils.setField(key1, "id", 1L);
+        ReflectionTestUtils.setField(key1, "issuedAt", LocalDateTime.of(2025,12,25, 0,0,0));
+
+        ApiKey key2 = application.addApiKey("def2asdvczx", 100, false);
+        ReflectionTestUtils.setField(key2, "id", 2L);
+        ReflectionTestUtils.setField(key2, "issuedAt", LocalDateTime.of(2025, 11, 24, 0,0,0));
+
+        when(applicationRepository.findById(1L))
+                .thenReturn(Optional.of(application));
+
+        applicationService.delete(1L);
+
+        verify(redisService, times(2)).deleteValue(anyString());
+        verify(applicationRepository).delete(application);
+    }
+
+    @Test
+    void deleteTest_notFound(){
+        when(applicationRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> applicationService.delete(1L))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("NotFound Application");
     }
