@@ -1,23 +1,24 @@
 package com.moodtunes.apiserver.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class RegisterAppRequest {
-    @NotBlank
+    @NotBlank(message = "appName is required")
     private String appName;
-    @NotBlank
+    @NotBlank(message = "ownerEmail is required")
+    @Email(message = "ownerEmail is not in format")
     private String ownerEmail;
-    @NotNull
-    @Min(1)
+    @NotNull(message = "quotaLimit is required")
+    @Min(value = 1, message = "quotaLimit must be greater than or equal to 1")
     private int quotaLimit;
 
     public RegisterAppRequest(String appName, String ownerEmail, int quotaLimit) {

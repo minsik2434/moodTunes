@@ -6,6 +6,7 @@ import com.moodtunes.apiserver.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +20,7 @@ public class ApplicationController {
     private final ApplicationService applicationService;
 
     @PostMapping
-    public ResponseEntity<RegisterAppResponse> registerApplication(@RequestBody RegisterAppRequest request){
+    public ResponseEntity<RegisterAppResponse> registerApplication(@Validated @RequestBody RegisterAppRequest request){
         RegisterAppResponse response = applicationService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
