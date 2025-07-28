@@ -13,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final ApiKeyGenerator apiKeyGenerator;
+    private final RedisService redisService;
 
     @Transactional
     public RegisterAppResponse register(RegisterAppRequest request){
@@ -40,18 +43,28 @@ public class ApplicationService {
     @Transactional(readOnly = true)
     public ApplicationInfoResponse getInfo(Long appId){
         Application application = applicationRepository.findById(appId)
-                .orElseThrow(() -> new NotFoundException("NotFound"));
+                .orElseThrow(() -> new NotFoundException("NotFound Application"));
         List<ApiKey> apiKeys = application.getApiKeys();
-        //TODO Redis 에서 일일 호출가능 정보 조회 후 remaining에 설정해 반환해야함
-        List<ApiKeyDto> list = apiKeys.stream().map(apiKey -> new ApiKeyDto(apiKey.getId(), getKeyPrefix(apiKey.getApiKey()),
-                        apiKey.getQuotaLimit(), 55, apiKey.isActivate(), apiKey.getIssuedAt()))
-                .toList();
+        List<ApiKeyDto> apiKeyDtoList = new ArrayList<>();
+        for (ApiKey apiKey : apiKeys) {
+            Optional<String> value = redisService.getValue(apiKey.getApiKey());
+            int remainingQuota = value.map(s -> apiKey.getQuotaLimit() - Integer.parseInt(s)).orElseGet(apiKey::getQuotaLimit);
+            ApiKeyDto apiKeyDto = new ApiKeyDto(apiKey.getId(),
+                    getKeyPrefix(apiKey.getApiKey()),
+                    apiKey.getQuotaLimit(),
+                    remainingQuota,
+                    apiKey.isActivate(),
+                    apiKey.getIssuedAt()
+            );
+
+            apiKeyDtoList.add(apiKeyDto);
+        }
 
         return new ApplicationInfoResponse(
                 application.getId(),
                 application.getName(),
                 application.getOwnerEmail(),
-                list
+                apiKeyDtoList
         );
     }
 

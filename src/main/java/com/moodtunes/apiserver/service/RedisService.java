@@ -1,6 +1,5 @@
 package com.moodtunes.apiserver.service;
 
-import com.moodtunes.apiserver.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;

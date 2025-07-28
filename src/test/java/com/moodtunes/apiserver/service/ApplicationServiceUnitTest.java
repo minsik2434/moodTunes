@@ -7,7 +7,6 @@ import com.moodtunes.apiserver.dto.RegisterAppResponse;
 import com.moodtunes.apiserver.entity.ApiKey;
 import com.moodtunes.apiserver.entity.Application;
 import com.moodtunes.apiserver.exception.NotFoundException;
-import com.moodtunes.apiserver.repository.ApiKeyRepository;
 import com.moodtunes.apiserver.repository.ApplicationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,9 +30,9 @@ class ApplicationServiceUnitTest {
     @Mock
     ApplicationRepository applicationRepository;
     @Mock
-    ApiKeyRepository apiKeyRepository;
-    @Mock
     ApiKeyGenerator apiKeyGenerator;
+    @Mock
+    RedisService redisService;
 
     @Test
     void registerTest() throws NoSuchFieldException, IllegalAccessException {
@@ -77,6 +76,9 @@ class ApplicationServiceUnitTest {
         when(applicationRepository.findById(1L))
                 .thenReturn(Optional.of(application));
 
+        when(redisService.getValue("abc1fasdfv")).thenReturn(Optional.of("45"));
+        when(redisService.getValue("def2asdvczx")).thenReturn(Optional.of("55"));
+
         ApplicationInfoResponse response = applicationService.getInfo(1L);
 
         assertThat(response.getAppId())
@@ -99,7 +101,7 @@ class ApplicationServiceUnitTest {
                 .containsExactlyInAnyOrder(
                         tuple(1L, "abc1", 100, 55, true,
                                 LocalDateTime.of(2025,12,25, 0,0,0)),
-                        tuple(2L, "def2", 100, 55, false,
+                        tuple(2L, "def2", 100, 45, false,
                                 LocalDateTime.of(2025, 11, 24, 0,0,0))
                 );
     }
@@ -111,6 +113,6 @@ class ApplicationServiceUnitTest {
 
         assertThatThrownBy(() -> applicationService.getInfo(1L))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("NotFound");
+                .hasMessage("NotFound Application");
     }
 }
