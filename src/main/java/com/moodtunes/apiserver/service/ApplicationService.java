@@ -43,20 +43,7 @@ public class ApplicationService {
     public ApplicationInfoResponse getInfo(Long appId){
         Application application = applicationRepository.findById(appId)
                 .orElseThrow(() -> new NotFoundException("NotFound Application"));
-        List<ApiKeyDto> apiKeyDtoList = new ArrayList<>();
-        for (ApiKey apiKey : application.getApiKeys()) {
-            String value = redisService.getValue(apiKey.getApiKey()).orElse(null);
-            int remainingQuota = getRemainingQuota(value, apiKey.getQuotaLimit());
-            ApiKeyDto apiKeyDto = new ApiKeyDto(apiKey.getId(),
-                    getKeyPrefix(apiKey.getApiKey()),
-                    apiKey.getQuotaLimit(),
-                    remainingQuota,
-                    apiKey.isActivate(),
-                    apiKey.getIssuedAt()
-            );
-
-            apiKeyDtoList.add(apiKeyDto);
-        }
+        List<ApiKeyDto> apiKeyDtoList = application.getApiKeys().stream().map(this::mapToDto).toList();
 
         return new ApplicationInfoResponse(
                 application.getId(),
@@ -75,5 +62,16 @@ public class ApplicationService {
             return limitQuota;
         }
         return limitQuota - Integer.parseInt(currentQuota);
+    }
+
+    private ApiKeyDto mapToDto(ApiKey apiKey){
+        String quota = redisService.getValue(apiKey.getApiKey()).orElse(null);
+        int remainingQuota = getRemainingQuota(quota, apiKey.getQuotaLimit());
+        return new ApiKeyDto(apiKey.getId(),
+                getKeyPrefix(apiKey.getApiKey()),
+                apiKey.getQuotaLimit(),
+                remainingQuota,
+                apiKey.isActivate(),
+                apiKey.getIssuedAt());
     }
 }
