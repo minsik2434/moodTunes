@@ -73,11 +73,15 @@ class ApplicationServiceUnitTest {
         ReflectionTestUtils.setField(key2, "id", 2L);
         ReflectionTestUtils.setField(key2, "issuedAt", LocalDateTime.of(2025, 11, 24, 0,0,0));
 
+        ApiKey key3 = application.addApiKey("ghi323dcczxv", 100, true);
+        ReflectionTestUtils.setField(key3, "id", 3L);
+        ReflectionTestUtils.setField(key3, "issuedAt", LocalDateTime.of(2025, 7, 25, 0, 0, 0));
         when(applicationRepository.findById(1L))
                 .thenReturn(Optional.of(application));
 
         when(redisService.getValue("abc1fasdfv")).thenReturn(Optional.of("45"));
         when(redisService.getValue("def2asdvczx")).thenReturn(Optional.of("55"));
+        when(redisService.getValue("ghi323dcczxv")).thenReturn(Optional.empty());
 
         ApplicationInfoResponse response = applicationService.getInfo(1L);
 
@@ -89,7 +93,7 @@ class ApplicationServiceUnitTest {
                 .isEqualTo("test@naver.com");
 
         assertThat(response.getApiKeys())
-                .hasSize(2)
+                .hasSize(3)
                 .extracting(
                         ApiKeyDto::getId,
                         ApiKeyDto::getKeyPrefix,
@@ -102,7 +106,9 @@ class ApplicationServiceUnitTest {
                         tuple(1L, "abc1", 100, 55, true,
                                 LocalDateTime.of(2025,12,25, 0,0,0)),
                         tuple(2L, "def2", 100, 45, false,
-                                LocalDateTime.of(2025, 11, 24, 0,0,0))
+                                LocalDateTime.of(2025, 11, 24, 0,0,0)),
+                        tuple(3L, "ghi3", 100, 100, true,
+                                LocalDateTime.of(2025, 7, 25, 0, 0, 0))
                 );
     }
 

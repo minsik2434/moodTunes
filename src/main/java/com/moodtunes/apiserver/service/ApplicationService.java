@@ -7,7 +7,6 @@ import com.moodtunes.apiserver.dto.RegisterAppResponse;
 import com.moodtunes.apiserver.entity.ApiKey;
 import com.moodtunes.apiserver.entity.Application;
 import com.moodtunes.apiserver.exception.NotFoundException;
-import com.moodtunes.apiserver.repository.ApiKeyRepository;
 import com.moodtunes.apiserver.repository.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,11 +43,10 @@ public class ApplicationService {
     public ApplicationInfoResponse getInfo(Long appId){
         Application application = applicationRepository.findById(appId)
                 .orElseThrow(() -> new NotFoundException("NotFound Application"));
-        List<ApiKey> apiKeys = application.getApiKeys();
         List<ApiKeyDto> apiKeyDtoList = new ArrayList<>();
-        for (ApiKey apiKey : apiKeys) {
-            Optional<String> value = redisService.getValue(apiKey.getApiKey());
-            int remainingQuota = value.map(s -> apiKey.getQuotaLimit() - Integer.parseInt(s)).orElseGet(apiKey::getQuotaLimit);
+        for (ApiKey apiKey : application.getApiKeys()) {
+            String value = redisService.getValue(apiKey.getApiKey()).orElse(null);
+            int remainingQuota = getRemainingQuota(value, apiKey.getQuotaLimit());
             ApiKeyDto apiKeyDto = new ApiKeyDto(apiKey.getId(),
                     getKeyPrefix(apiKey.getApiKey()),
                     apiKey.getQuotaLimit(),
@@ -70,5 +68,12 @@ public class ApplicationService {
 
     private String getKeyPrefix(String apiKey){
         return apiKey.substring(0, 4);
+    }
+
+    private int getRemainingQuota(String currentQuota, int limitQuota){
+        if(currentQuota == null || currentQuota.isEmpty()){
+            return limitQuota;
+        }
+        return limitQuota - Integer.parseInt(currentQuota);
     }
 }
