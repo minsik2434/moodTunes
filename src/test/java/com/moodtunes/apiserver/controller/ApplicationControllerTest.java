@@ -14,11 +14,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ApplicationController.class)
@@ -45,6 +47,10 @@ class ApplicationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody));
 
-        perform.andExpect(status().isCreated());
+        perform.andExpect(status().isCreated())
+                .andExpect(jsonPath("$.appId").value(response.getAppId()))
+                .andExpect(jsonPath("$.apiKey").value(response.getApiKey()))
+                .andExpect(jsonPath("$.quotaLimit").value(response.getQuotaLimit()))
+                .andExpect(jsonPath("$.issuedAt").value(response.getIssuedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 }
