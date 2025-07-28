@@ -1,1 +1,6 @@
-spring.application.name=apiserver
+spring:
+  application:
+    name: apiserver
+  redis:
+    host: localhost
+    port: 6380
