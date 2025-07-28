@@ -29,4 +29,10 @@ public class ApplicationController {
         ApplicationInfoResponse info = applicationService.getInfo(id);
         return ResponseEntity.ok(info);
     }
+
+    @DeleteMapping("/{appId}")
+    public ResponseEntity<Void> deleteApplication(@PathVariable("appId") Long id){
+        applicationService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
