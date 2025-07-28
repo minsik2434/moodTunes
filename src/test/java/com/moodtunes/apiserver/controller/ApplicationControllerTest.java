@@ -80,6 +80,18 @@ class ApplicationControllerTest {
                         new RegisterAppRequest("", "test@naver.com", 100),
                         "Bad Request",
                         "appName: appName is required"
+                ),
+                Arguments.of(new RegisterAppRequest("myApp", "", 100),
+                        "Bad Request",
+                        "ownerEmail: ownerEmail is required"
+                ),
+                Arguments.of(new RegisterAppRequest("myApp", "test123", 100),
+                        "Bad Request",
+                        "ownerEmail: ownerEmail is not in format"
+                ),
+                Arguments.of(new RegisterAppRequest("myApp", "test@naver.com", 0),
+                        "Bad Request",
+                        "quotaLimit: quotaLimit must be greater than or equal to 1"
                 )
         );
     }
