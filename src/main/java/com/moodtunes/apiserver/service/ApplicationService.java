@@ -56,11 +56,9 @@ public class ApplicationService {
         Application application = applicationRepository.findById(appId)
                 .orElseThrow(() -> new NotFoundException("NotFound Application"));
 
-        List<ApiKey> apiKeys = application.getApiKeys();
-        for (ApiKey apiKey : apiKeys) {
+        for (ApiKey apiKey : application.getApiKeys()) {
             redisService.deleteValue(apiKey.getApiKey());
         }
-
         applicationRepository.delete(application);
     }
 
