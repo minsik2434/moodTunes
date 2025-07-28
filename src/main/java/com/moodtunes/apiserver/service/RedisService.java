@@ -48,8 +48,7 @@ public class RedisService {
     }
 
     @Transactional
-    public void deleteValues(String... keys){
-        List<String> keyList = List.of(keys);
-        redisTemplate.delete(keyList);
+    public void deleteValues(List<String> keys){
+        redisTemplate.delete(keys);
     }
 }

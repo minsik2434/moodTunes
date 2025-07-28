@@ -140,7 +140,7 @@ class ApplicationServiceUnitTest {
 
         applicationService.delete(1L);
 
-        verify(redisService, times(2)).deleteValue(anyString());
+        verify(redisService).deleteValues(anyList());
         verify(applicationRepository).delete(application);
     }
 
