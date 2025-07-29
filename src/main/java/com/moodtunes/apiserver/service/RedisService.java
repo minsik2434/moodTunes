@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +31,22 @@ public class RedisService {
     public void setValue(String key, String value){
         ValueOperations<String, String> vo = redisTemplate.opsForValue();
         vo.set(key, value);
+    }
+
+    private long secondsUntilNextMidnight(){
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+        ZonedDateTime midNight = now.plusDays(1).truncatedTo(ChronoUnit.DAYS);
+        return Duration.between(now, midNight).getSeconds();
+    }
+
+    public long incrementWithMidnightExpire(String key){
+        long newCount = redisTemplate.opsForValue().increment(key);
+
+        Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+        if (ttl < 0) {
+            redisTemplate.expire(key, secondsUntilNextMidnight(), TimeUnit.SECONDS);
+        }
+        return newCount;
     }
 
     @Transactional
