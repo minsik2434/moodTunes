@@ -6,9 +6,11 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,13 @@ public class RedisService {
         vo.set(key, value);
     }
 
+    @Transactional
+    public void setValue(String key, String value, Duration duration){
+        ValueOperations<String, String> vo = redisTemplate.opsForValue();
+        long seconds = duration.getSeconds();
+        vo.set(key, value, seconds, TimeUnit.SECONDS);
+    }
+
     @Transactional(readOnly = true)
     public List<String> getValues(String... keys){
         ValueOperations<String, String> vo = redisTemplate.opsForValue();
@@ -40,6 +49,10 @@ public class RedisService {
         }
 
         return result;
+    }
+
+    public Long increment(String key){
+        return redisTemplate.opsForValue().increment(key);
     }
 
     @Transactional

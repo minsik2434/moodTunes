@@ -32,18 +32,18 @@ public class ApiAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String apiKeyHeader = request.getHeader("X-API-KEY");
         if(apiKeyHeader == null || apiKeyHeader.isEmpty()){
-            setResponse(HttpStatus.UNAUTHORIZED.value(), "INVALID-API-KEY", "X-API-KEY header required", response);
+            HttpResponseUtil.sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "INVALID=API-KEY", "X-API-KEY header required");
             return;
         }
 
         ApiKey apiKey = apiKeyRepository.findByApiKey(apiKeyHeader).orElse(null);
         if(apiKey == null){
-            setResponse(HttpStatus.UNAUTHORIZED.value(), "INVALID-API-KEY", "Invalid API-KEY", response);
+            HttpResponseUtil.sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "INVALID-API-KEY", "Invalid API-KEY");
             return;
         }
 
         if(!apiKey.isActivate()){
-            setResponse(HttpStatus.FORBIDDEN.value(), "API-KEY-DISABLED", "API-KEY Activate is false", response);
+            HttpResponseUtil.sendErrorResponse(response, HttpStatus.FORBIDDEN, "API-KEY-DISABLED", "API-KEY Activate is false");
             return;
         }
 
@@ -53,16 +53,6 @@ public class ApiAuthFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         return HttpMethod.POST.matches(request.getMethod()) && request.getRequestURI().equals("/apps");
-    }
-
-    private void setResponse(int httpCode, String error, String message, HttpServletResponse response) throws IOException {
-        ErrorResponse errorResponse = new ErrorResponse(httpCode, error, message);
-        String responseString = mapper.writeValueAsString(errorResponse);
-        response.setStatus(httpCode);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.getWriter().write(responseString);
-        response.getWriter().flush();
     }
 
 }
