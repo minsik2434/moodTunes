@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -17,6 +18,12 @@ public class MusicController {
     @GetMapping("/random")
     public ResponseEntity<MusicResponse> getRandomMusic(){
         MusicResponse response = musicService.randomMusic();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<MusicResponse> getMoodMusic(@RequestParam("mood") String mood){
+        MusicResponse response = musicService.randomMusicByMood(mood);
         return ResponseEntity.ok(response);
     }
 }
