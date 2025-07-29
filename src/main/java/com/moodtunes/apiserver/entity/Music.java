@@ -23,7 +23,7 @@ public class Music {
     @JoinColumn(name = "mood_id")
     private Mood mood;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "music")
     List<MusicTag> musicTags = new ArrayList<>();
 
     private String url;
